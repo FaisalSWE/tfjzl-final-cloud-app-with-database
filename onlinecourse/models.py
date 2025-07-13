@@ -97,17 +97,15 @@ class Enrollment(models.Model):
 
 # Question model
 class Question(models.Model):
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)  # Many-to-One with Course
-    question_text = models.CharField(max_length=200)
-    grade_point = models.FloatField()
-    def __str__(self):
-        return self.question_text
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    text = models.CharField(max_length=500)
+    grade = models.IntegerField(default=1)
 
-    # method to calculate if the learner gets the score of the question
     def is_get_score(self, selected_ids):
         all_answers = self.choice_set.filter(is_correct=True).count()
         selected_correct = self.choice_set.filter(is_correct=True, id__in=selected_ids).count()
         return all_answers == selected_correct
+
 
 # Choice model
 class Choice(models.Model):

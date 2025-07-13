@@ -14,7 +14,7 @@
     <nav class="navbar navbar-light bg-light">
         <div class="container-fluid">
             <div class="navbar-header">
-                  <a class="navbar-brand" href="{% url 'onlinecourse:index' %}">Home</a>
+                <a class="navbar-brand" href="{% url 'onlinecourse:index' %}">Home</a>
             </div>
             <ul class="nav navbar-nav navbar-right">
                 {% if user.is_authenticated %}
@@ -27,8 +27,8 @@
                     <form class="form-inline" action="{% url 'onlinecourse:login' %}" method="post">
                         {% csrf_token %}
                         <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Username" name="username" >
-                            <input type="password" class="form-control" placeholder="Username" name="psw" >
+                            <input type="text" class="form-control" placeholder="Username" name="username">
+                            <input type="password" class="form-control" placeholder="Password" name="psw">
                             <button class="btn btn-primary" type="submit">Login</button>
                             <a class="btn btn-link" href="{% url 'onlinecourse:registration' %}">Sign Up</a>
                         </div>
@@ -41,16 +41,43 @@
 
     <!-- Page content -->
     <div class="container-fluid">
-            <h2>{{ course.name }}</h2>
-            <div class="card-columns-vertical">
-                {% for lesson in course.lesson_set.all %}
-                    <div class="card mt-1">
-                        <div class="card-header"><h5>Lesson {{lesson.order|add:1}}: {{lesson.title}}</h5></div>
-                        <div class="card-body">{{lesson.content}}</div>
-                    </div>
-                {% endfor %}
+        <h2>{{ course.name }}</h2>
+        <div class="card-columns-vertical">
+            {% for lesson in course.lesson_set.all %}
+            <div class="card mt-1">
+                <div class="card-header"><h5>Lesson {{ lesson.order|add:1 }}: {{ lesson.title }}</h5></div>
+                <div class="card-body">{{ lesson.content }}</div>
             </div>
-            <!-- Course detail template changes go here -->
+            {% endfor %}
+        </div>
+
+        <!-- Exam Section -->
+        {% if user.is_authenticated %}
+        <h5 class="mt-5">Take Exam</h5>
+        <form method="post" action="{% url 'onlinecourse:submit' course.id %}">
+            {% csrf_token %}
+            {% for question in course.question_set.all %}
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">
+                        Question {{ forloop.counter }}: {{ question.content }}
+                    </h6>
+                    {% for choice in question.choice_set.all %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox"
+                               name="choice" id="choice{{ choice.id }}"
+                               value="{{ choice.id }}">
+                        <label class="form-check-label" for="choice{{ choice.id }}">
+                            {{ choice.content }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary mt-3">Submit Exam</button>
+        </form>
+        {% endif %}
     </div>
 </body>
 </html>
